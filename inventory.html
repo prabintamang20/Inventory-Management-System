@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link rel="stylesheet" href="inventory.css">
+</head>
+<body>
+    <!-- Login/Signup Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1>📦 Inventory Manager</h1>
+                <p>Professional Inventory Management System</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active-form">
+                <h2>Welcome Back</h2>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="Enter your password">
+                    </div>
+                    <div class="form-row remember-row">
+                        <label for="rememberMe">
+                            <input type="checkbox" id="rememberMe">
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-link" onclick="showAuthSection('forgotForm', event)">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-auth">Login</button>
+                </form>
+                <p class="auth-toggle">Don't have an account? <a href="#" onclick="toggleAuthForms(event)">Sign Up</a></p>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signupForm" class="auth-form">
+                <h2>Create Account</h2>
+                <form onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="signupName">Full Name</label>
+                        <input type="text" id="signupName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email</label>
+                        <input type="email" id="signupEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input type="password" id="signupPassword" required placeholder="At least 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupConfirm">Confirm Password</label>
+                        <input type="password" id="signupConfirm" required placeholder="Confirm your password">
+                    </div>
+                    <button type="submit" class="btn btn-auth">Create Account</button>
+                </form>
+                <p class="auth-toggle">Already have an account? <a href="#" onclick="toggleAuthForms(event)">Login</a></p>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgotForm" class="auth-form">
+                <h2>Reset Password</h2>
+                <form onsubmit="handleForgotPasswordSubmit(event)">
+                    <div class="form-group">
+                        <label for="resetEmail">Registered Email</label>
+                        <input type="email" id="resetEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="resetPassword">New Password</label>
+                        <input type="password" id="resetPassword" required placeholder="At least 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label for="resetConfirm">Confirm New Password</label>
+                        <input type="password" id="resetConfirm" required placeholder="Confirm your password">
+                    </div>
+                    <button type="submit" class="btn btn-auth">Reset Password</button>
+                </form>
+                <p class="auth-toggle">
+                    <a href="#" onclick="showAuthSection('loginForm', event)">Back to Login</a>
+                    <span class="auth-separator">|</span>
+                    <a href="#" onclick="showAuthSection('signupForm', event)">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <h1>📦 Inventory Management System</h1>
+                    <p class="subtitle">Manage your inventory efficiently and professionally</p>
+                </div>
+                <div class="header-right">
+                    <img id="headerAvatar" class="header-avatar" src="" alt="Profile" style="display:none;" />
+                    <span class="user-info" id="userInfo"></span>
+                    <button class="btn btn-profile" onclick="openProfileModal()" title="Profile">👤 Profile</button>
+                    <button class="btn btn-theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">🌙 Dark</button>
+                    <button class="btn btn-logout" onclick="handleLogout()">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Statistics Section -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3>Total Items</h3>
+                        <p id="totalItems">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>Total Quantity</h3>
+                        <p id="totalQuantity">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-info">
+                        <h3>Low Stock Items</h3>
+                        <p id="lowStockItems">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>Total Value</h3>
+                        <p id="totalValue">$0.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Overview Section -->
+            <section class="progress-section">
+                <h2>📊 Inventory Progress Overview</h2>
+                <div class="progress-grid">
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Stock Status</h3>
+                            <span class="progress-label" id="stockStatusLabel">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="stockStatusFill"></div>
+                        </div>
+                        <p class="progress-desc">Items with adequate stock levels</p>
+                    </div>
+
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Category Distribution</h3>
+                            <span class="progress-label" id="categoryLabel">-</span>
+                        </div>
+                        <div class="category-chart" id="categoryChart">
+                            <div class="category-item">
+                                <span class="cat-name">Electronics</span>
+                                <div class="cat-bar"><div class="cat-fill" id="cat-electronics"></div></div>
+                                <span class="cat-count" id="cat-electronics-count">0</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="cat-name">Furniture</span>
+                                <div class="cat-bar"><div class="cat-fill" id="cat-furniture"></div></div>
+                                <span class="cat-count" id="cat-furniture-count">0</span>
+                            </div>
+                            <div class="category-item">
+                                <span class="cat-name">Other</span>
+                                <div class="cat-bar"><div class="cat-fill" id="cat-other"></div></div>
+                                <span class="cat-count" id="cat-other-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Inventory Health</h3>
+                            <span class="progress-label" id="healthLabel">Good</span>
+                        </div>
+                        <div class="health-indicator">
+                            <div class="health-ring" id="healthRing">
+                                <div class="ring-label" id="healthPercent">0%</div>
+                            </div>
+                        </div>
+                        <div class="health-breakdown">
+                            <div class="health-item">
+                                <span class="health-color in-stock"></span>
+                                <span>In Stock: <strong id="healthInStock">0</strong></span>
+                            </div>
+                            <div class="health-item">
+                                <span class="health-color low-stock"></span>
+                                <span>Low: <strong id="healthLow">0</strong></span>
+                            </div>
+                            <div class="health-item">
+                                <span class="health-color out-stock"></span>
+                                <span>Out: <strong id="healthOut">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section class="controls-section">
+                <div class="search-filters">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-input" 
+                        placeholder="🔍 Search items by name, SKU, or category..."
+                    >
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="food">Food & Beverages</option>
+                        <option value="books">Books</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="sortSelect" class="filter-select">
+                        <option value="name">Sort by Name</option>
+                        <option value="quantity">Sort by Quantity</option>
+                        <option value="price">Sort by Price</option>
+                        <option value="date">Sort by Date Added</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    ➕ Add New Item
+                </button>
+            </section>
+
+            <!-- Add/Edit Item Modal -->
+            <div id="itemModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalTitle">Add New Item</h2>
+                        <span class="close" onclick="closeAddModal()">&times;</span>
+                    </div>
+                    <form id="itemForm" onsubmit="saveItem(event)">
+                        <div class="form-group">
+                            <label for="itemName">Item Name *</label>
+                            <input type="text" id="itemName" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemSKU">SKU *</label>
+                                <input type="text" id="itemSKU" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="itemCategory">Category *</label>
+                                <select id="itemCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="electronics">Electronics</option>
+                                    <option value="furniture">Furniture</option>
+                                    <option value="clothing">Clothing</option>
+                                    <option value="food">Food & Beverages</option>
+                                    <option value="books">Books</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="itemQuantity">Quantity *</label>
+                                <input type="number" id="itemQuantity" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="itemPrice">Unit Price ($) *</label>
+                                <input type="number" id="itemPrice" min="0" step="0.01" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemMinStock">Minimum Stock Level</label>
+                            <input type="number" id="itemMinStock" min="0" value="10">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="itemDescription">Description</label>
+                            <textarea id="itemDescription" rows="3" placeholder="Add any notes about this item..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Item</button>
+                            <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Inventory Table Section -->
+            <section class="table-section">
+                <h2>Inventory List</h2>
+                <div class="table-wrapper">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th>SKU</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Value</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr class="empty-state">
+                                <td colspan="8">No items in inventory. Click "Add New Item" to get started!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>📦 Inventory Manager</h4>
+                    <p>Professional inventory management system for efficient business operations.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#" onclick="openAddModal()">Add Item</a></li>
+                        <li><a href="#" onclick="document.getElementById('searchInput').focus()">Search</a></li>
+                        <li><a href="#" onclick="clearAllInventory()">Clear Data</a></li>
+                        <li><a href="#" onclick="handleLogout()">Logout</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Real-time inventory tracking</li>
+                        <li>Low stock alerts</li>
+                        <li>Dark mode support</li>
+                        <li>User authentication</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <p>For assistance, please contact support.</p>
+                    <p class="footer-email">📧 support@inventory.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Inventory Management System. All rights reserved.</p>
+                <p>Developed with Prabin Tamang | <span id="themeStatus">Light Mode</span></p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content confirm-modal">
+            <h2>Delete Item?</h2>
+            <p>Are you sure you want to delete <strong id="deleteItemName"></strong>? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                <button class="btn btn-secondary" onclick="cancelDelete()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2>Profile Settings</h2>
+                <span class="close" onclick="closeProfileModal()">&times;</span>
+            </div>
+            <div class="profile-tabs">
+                <button class="tab-btn active-tab" onclick="showProfileTab('profileTab', event)">Profile</button>
+                <button class="tab-btn" onclick="showProfileTab('passwordTab', event)">Change Password</button>
+                <button class="tab-btn" onclick="showProfileTab('settingsTab', event)">Settings</button>
+            </div>
+            <div class="profile-tab-content active-tab-content" id="profileTab">
+                <form onsubmit="saveProfileChanges(event)">
+                    <div class="profile-avatar-preview">
+                        <img id="profileAvatarPreview" src="" alt="Profile Photo">
+                        <span>Profile Picture</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePicture">Upload Picture</label>
+                        <input type="file" id="profilePicture" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileName">Name</label>
+                        <input type="text" id="profileName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePosition">Position</label>
+                        <input type="text" id="profilePosition" placeholder="Inventory Manager, Supervisor, etc.">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Profile</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+            <div class="profile-tab-content" id="passwordTab">
+                <form onsubmit="changePassword(event)">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmNewPassword">Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+            <div class="profile-tab-content" id="settingsTab">
+                <form onsubmit="saveProfileSettings(event)">
+                    <div class="form-group toggle-group">
+                        <label for="settingDarkMode">Dark Mode</label>
+                        <input type="checkbox" id="settingDarkMode">
+                    </div>
+                    <div class="form-group toggle-group">
+                        <label for="settingRememberMe">Remember Email</label>
+                        <input type="checkbox" id="settingRememberMe">
+                    </div>
+                    <div class="form-group toggle-group">
+                        <label for="settingLowStockAlerts">Low Stock Alerts</label>
+                        <input type="checkbox" id="settingLowStockAlerts">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeProfileModal()">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="inventory.js"></script>
+</body>
+</html>
